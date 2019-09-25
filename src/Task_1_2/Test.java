@@ -22,7 +22,7 @@ public class Test {//для тестирования
         System.out.println(array1);
         System.out.println(array2);
         System.out.println(array3);
-
+//преобразуем массив array1 в ArrayList
         ArrayList arrayList = array1.toArrayList();
         System.out.println(arrayList.getClass());
 

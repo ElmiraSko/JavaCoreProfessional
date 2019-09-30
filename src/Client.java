@@ -52,7 +52,7 @@ public class Client extends JFrame {
                             if (!(strFromServer = in.readUTF()).trim().isEmpty()) {
                                 System.out.println(strFromServer + " - проверка");
                                 if (!strFromServer.startsWith("/time")) {
-                                    if (strFromServer.startsWith("/authok")) {
+                                    if (strFromServer.startsWith("/authok")) { // если авторизовались
                                         myNick = strFromServer.split("\\s")[1];//клиент получил свой ник
                                         if (myNick != null) {
                                             System.out.println("Ник получен");
@@ -61,7 +61,7 @@ public class Client extends JFrame {
                                             conect = true;
                                             flag_exit = true;
                                             btnAuth.setEnabled(false);
-                                            //btnReg.setEnabled(false);
+                                            btnRegistration.setText("Сменить ник");
                                         }
                                         break;
                                     }
@@ -167,6 +167,7 @@ public class Client extends JFrame {
             } else JOptionPane.showMessageDialog(this, "Введите пароль!");
         } else JOptionPane.showMessageDialog(this, "Введите логин!");
     }
+//вспомогательное окно для авторизации, регистрации нового пользователя и для подключения к серверу
     class AuthWindow extends JFrame{
         AuthWindow(){
             super("Авторизация");
@@ -195,6 +196,7 @@ public class Client extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     if (e.getActionCommand().equals("Войти")){sendLoginAndPassword("/auth ");}
                     if (e.getActionCommand().equals("Зарегистрироваться")){sendLoginAndPassword("/reg ");}
+                    if (e.getActionCommand().equals("Сменить ник")){sendLoginAndPassword("/update ");}
                     if (e.getActionCommand().equals("Подключиться к серверу")){
                         if(!login.getText().equals("") && !password.getText().equals("")) {
                             SERVER_ADDR = login.getText();
@@ -219,7 +221,7 @@ public class Client extends JFrame {
             setVisible(true);
         }
     }
-    //================================
+    //==== главное окно чата
     public void prepareGUI() {
         setBounds(600, 150, 500, 500);
         setTitle("Клиент");
@@ -228,19 +230,28 @@ public class Client extends JFrame {
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
         add(new JScrollPane(chatArea), BorderLayout.CENTER);
-//Верхняя панель для ввода логина и пароля и ника
+//Верхняя панель для ввода логина, пароля и ника
         JPanel topPanel = new JPanel(new FlowLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(3,3,3,3));
         btnRegistration = new JButton("Регистрация");
         btnRegistration.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                wind = new AuthWindow();
-                wind.setTitle("Регистрация");
-                label_nick.setEnabled(true);
-                label_nick.setText("Введите ник:");
-                nick.setEditable(true);
-                btnEnter.setText("Зарегистрироваться");
+                if (e.getActionCommand().equals("Регистрация")){
+                    wind = new AuthWindow();
+                    wind.setTitle("Регистрация");
+                    label_nick.setEnabled(true);
+                    label_nick.setText("Введите ник:");
+                    nick.setEditable(true);
+                    btnEnter.setText("Зарегистрироваться");}
+                if (e.getActionCommand().equals("Сменить ник")){
+                    wind = new AuthWindow();
+                    wind.setTitle("Смена ника пользователя");
+                    label_nick.setEnabled(true);
+                    label_nick.setText("Введите новый ник:");
+                    nick.setEditable(true);
+                    btnEnter.setText("Сменить ник");
+                }
             }
         });
         btnAuth = new JButton("Войти в чат");

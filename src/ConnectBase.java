@@ -23,7 +23,7 @@ public class ConnectBase {
         return connection;
     }
 
-
+//=======================================
     public void createTable(){
         try{
             String query = String.format("CREATE TABLE auth (id integer primary key autoincrement, login varchar not null,  password varchar not null, nick varchar not null)");
@@ -35,6 +35,7 @@ public class ConnectBase {
             state.executeUpdate(query2);
         }catch (SQLException ex){}
     }
+//==========================
     void close() {
         try {
             connection.close();
@@ -42,6 +43,7 @@ public class ConnectBase {
             System.out.println("Не закрыли" + e.getMessage());
         }
     }
+//======== получение ника по логину и паролю
     public String getNickByLoginPass(String login, String pass) {
         String nick = null;
         try {
@@ -56,7 +58,7 @@ public class ConnectBase {
         }
         return nick;
     }
-    //метод добавляет в базу нового пользователя
+// ========== метод добавляет в базу нового пользователя
 public String registration(String login, String pass, String nick){
         String sss = null;
         String queryALL = "SELECT * FROM auth";
@@ -85,4 +87,18 @@ public String registration(String login, String pass, String nick){
     }
     return sss;
 }
+//==== метод для смены ника
+     String getNewNick(String login, String pass, String nick){
+    String nickName = null;
+        String query = "UPDATE auth SET nick = '" + nick + "' WHERE login = '" + login + "' AND password = '" + pass + "'";
+        try {
+            state = connection.createStatement();
+            state.executeUpdate(query);
+            ResultSet getNewNick = state.executeQuery("SELECT nick FROM auth WHERE login = '" + login + "'" + " AND password = '" + pass + "'");
+            while (getNewNick.next()){
+            nickName = getNewNick.getString("nick");}
+    }catch (SQLException ex){
+            ex.printStackTrace();}
+            return nickName;
+    }
 }

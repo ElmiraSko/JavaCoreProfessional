@@ -44,17 +44,17 @@ public class ClientHandler {
             try {
                 String str = in.readUTF(); //ожидаем текст от клиента
                 System.out.println(str);
-                if (str.startsWith("/auth")) {
+                if (str.startsWith("/auth")) { // если текст начинается с "/auth", т.е. авторизуемся, то
                     String[] parts = str.split("\\s");
                     String nick = myServer.getConnectBase().getNickByLoginPass(parts[1], parts[2]);
-                    if (nick != null) {
-                        if (!myServer.isNickBusy(nick)) {
-                            sendMsg("/authok " + nick);//отправили клиенту
+                    if (nick != null) { // получили ник из БД и он не пустой
+                        if (!myServer.isNickBusy(nick)) { // если сейчас он не используется
+                            sendMsg("/authok " + nick);//отправили клиенту сообщение, что он авторизован
                             name = nick;
                             flag=true;
                             myServer.broadcastMsg(name + " зашел в чат");
                             myServer.subscribe(this);
-                            return;
+                            return; // вышли из цикла авторизации
                         } else {
                             sendMsg("Учетная запись уже используется");
                             flag = false;
@@ -64,12 +64,11 @@ public class ClientHandler {
                         sendMsg("Неверные логин/пароль. Введите снова или зарегистрируйтесь.");
                     }
                 }
-                if (str.startsWith("/reg ")) {
+                if (str.startsWith("/reg ")) {  // если текст начинается с "/reg ", т.е. регистрируемся, то
                     String[] parts = str.split("\\s");
                     String nick = myServer.getConnectBase().registration(parts[1], parts[2], parts[3]);
-                    System.out.println(nick + " -reg");
                     if (nick!=null){
-                    sendMsg("/authok " + nick);//отправили клиенту
+                    sendMsg("/authok " + nick);//отправили клиенту, что он авторизовался
                     name = nick;
                     flag=true;
                     myServer.broadcastMsg(name + " зашел в чат");
@@ -98,7 +97,10 @@ public class ClientHandler {
                 socket.close();
                 return;
             }
-
+            if (strFromClient.startsWith("/update ")){
+                String[] parts = strFromClient.split("\\s");
+                name = myServer.getConnectBase().getNewNick(parts[1], parts[2], parts[3]);
+            }
             if (strFromClient.startsWith("/w")){
                 String[] words = strFromClient.split("\\s");
                 String forName = words[1];

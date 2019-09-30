@@ -60,7 +60,7 @@ public class ConnectBase {
 public String registration(String login, String pass, String nick){
         String sss = null;
         String queryALL = "SELECT * FROM auth";
-        boolean fl = false;
+        int count = 0;
     try {
         state = connection.createStatement();
         ResultSet res = state.executeQuery(queryALL);
@@ -68,14 +68,18 @@ public String registration(String login, String pass, String nick){
             String log_  = res.getString("login");
             String pass_  = res.getString("password");
             String nick_  = res.getString("nick");
-            if (!log_.equals(login) && !pass_.equals(pass) && !nick_.equals(nick)){fl = true;}else fl= false;
+            if (!log_.equals(login) && !pass_.equals(pass) && !nick_.equals(nick)){
+            }else count++;
         }
-        if (fl){
+        if (count == 0){
             String query = "INSERT INTO auth (login, password, nick) VALUES ('" + login + "', '" + pass + "', '" + nick + "');";
-            state.executeQuery(query);
+            state.executeUpdate(query);
             System.out.println("Регистрация прошла успешно");
-            sss = getNickByLoginPass(login, pass);
-        }else System.out.println("Регистрация не выполнена");
+            ResultSet rs = state.executeQuery("SELECT * FROM auth WHERE login = '" + login + "'" + " AND password = '" + pass + "'");
+            sss = rs.getString("nick");
+        }else {
+            System.out.println("Регистрация не выполнена");
+        }
     } catch (SQLException e) {
         System.out.println(e);
     }

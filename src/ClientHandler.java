@@ -40,7 +40,7 @@ public class ClientHandler {
     }
 
     public void authentication() throws IOException {
-        while ((System.currentTimeMillis()-timeStart)/1000 <= 60) {
+        while ((System.currentTimeMillis()-timeStart)/1000 <= 260) {
             try {
                 String str = in.readUTF(); //ожидаем текст от клиента
                 System.out.println(str);
@@ -67,12 +67,18 @@ public class ClientHandler {
                 if (str.startsWith("/reg ")) {
                     String[] parts = str.split("\\s");
                     String nick = myServer.getConnectBase().registration(parts[1], parts[2], parts[3]);
+                    System.out.println(nick + " -reg");
+                    if (nick!=null){
                     sendMsg("/authok " + nick);//отправили клиенту
                     name = nick;
                     flag=true;
                     myServer.broadcastMsg(name + " зашел в чат");
                     myServer.subscribe(this);
                     return;
+                    }else{
+                        flag=false;
+                        sendMsg("Указанный пользователь уже существует");
+                    }
                 }
             } catch (IOException ex) {
                 flag = false; //если клиент закрыл приложение не пройдя авторизацию

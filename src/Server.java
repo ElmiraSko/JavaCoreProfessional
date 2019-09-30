@@ -8,11 +8,6 @@ public class Server {
     private final int PORT = 8189;
     private ConnectBase connectBase;  // ссылка на объект Conect
     private List<ClientHandler> clients; //clients- ссылка на список(ArrayList) клиентов, пока  null
-    private AuthService authService;    // ссылка на объект AuthService, пока null
-
-   // public AuthService getAuthService() { // получение объекта AuthService
-//        return authService;
-//    }
 
     public ConnectBase getConnectBase() {
         return connectBase;
@@ -22,10 +17,6 @@ public class Server {
         try (ServerSocket server = new ServerSocket(PORT)) {
             connectBase = new ConnectBase();
             connectBase.getConnection_DB();  // получили соединение с базой
-            //connectBase.createTable();
-            //authService = new BaseAuthService();      // создание объекта AuthService, база
-            // содержащая список объектов "логин-пароль-ник"
-            //authService.start();              //  вывод сообщения "Сервис аутентификации запущен"
             clients = new ArrayList<>(); //создается список clients, для хранения объектов типа ClientHandler
             while (true) {
                 System.out.println("Сервер ожидает подключения");
@@ -36,8 +27,8 @@ public class Server {
         } catch (IOException e) {
             System.out.println("Ошибка в работе сервера");
         } finally {
-            if (authService != null) { //здесь надо закрыть базу
-                authService.stop();
+            if (connectBase != null) { //здесь надо закрыть базу
+                connectBase.close();
             }
         }
     }

@@ -57,9 +57,11 @@ public class Client extends JFrame {
                                         if (myNick != null) {
                                             System.out.println("Ник получен");
                                             msgInputField.setEditable(true);
+                                            msgInputField.setBackground(Color.YELLOW);
                                             conect = true;
                                             flag_exit = true;
                                             btnAuth.setEnabled(false);
+                                            //btnReg.setEnabled(false);
                                         }
                                         break;
                                     }
@@ -131,7 +133,7 @@ public class Client extends JFrame {
             }
         }
     }
-//"/auth "
+
     private void sendLoginAndPassword(String metaString) { // используем в слушателе кнопки "Войти"
         if (!login.getText().trim().isEmpty()) {
             if (!password.getText().trim().isEmpty()) {

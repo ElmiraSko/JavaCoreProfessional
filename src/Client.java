@@ -121,7 +121,7 @@ public class Client extends JFrame {
         }
     }
 
-    public void sendMessage() {
+    public void sendMessage() { //отправка того, что пишет клиент в чат (уходит своему  ClientHandler-у)
         if (!msgInputField.getText().trim().isEmpty()) {
             try {
                 out.writeUTF(msgInputField.getText());

@@ -19,11 +19,14 @@ public class ConnectBase {
         }
 
     }
-
-//этот метод использовала 1 раз для создания таблицы auth в бд BaseAuthService. Его вызов был в классе Server
+//============================================================================================
+//createTable() использовала 1 раз для создания таблицы auth в бд BaseAuthService. Его вызов был в классе Server
     public void createTable(){
         try{
-            String query = String.format("CREATE TABLE auth (id integer primary key autoincrement, login varchar not null,  password varchar not null, nick varchar not null)");
+            String query = String.format("CREATE TABLE auth (id integer primary key autoincrement, " +
+                    "login varchar not null,  " +
+                    "password varchar not null, " +
+                    "nick varchar not null)");
             Statement state = connection.createStatement();
             state.executeUpdate(query);
             String query2 = "INSERT INTO auth (login, password, nick)\n" +
@@ -32,6 +35,18 @@ public class ConnectBase {
             state.executeUpdate(query2);
         }catch (SQLException ex){}
     }
+//createTable2() использовала 1 раз для создания таблицы journal в бд BaseAuthService
+    public void createTable2(){
+        try{
+            String query = String.format("CREATE TABLE journal (" +
+                    "id integer primary key autoincrement, " +
+                    "text varchar not null, " +
+                    "id_author integer, foreign key (id_author) REFERENCES auth (id))");
+            Statement state = connection.createStatement();
+            state.executeUpdate(query);
+        }catch (SQLException ex){}
+    }
+//==================================================================================================
 // метод для закрытия connection
     void close() {
         try {
@@ -81,22 +96,45 @@ public String registration(String login, String pass, String nick){
             System.out.println("Регистрация не выполнена");
         }
     } catch (SQLException e) {
-        System.out.println(e);
+        System.out.println(e.getMessage());
     }
     return sss;
 }
 //==== метод для смены ника
      String getNewNick(String login, String pass, String nick){
     String nickName = null;
-        String query = "UPDATE auth SET nick = '" + nick + "' WHERE login = '" + login + "' AND password = '" + pass + "'";
+        String query = "UPDATE auth SET nick = '" + nick + "' " +
+                "WHERE login = '" + login + "' AND password = '" + pass + "'";
         try {
             state = connection.createStatement();
             state.executeUpdate(query);
-            ResultSet getNewNick = state.executeQuery("SELECT nick FROM auth WHERE login = '" + login + "'" + " AND password = '" + pass + "'");
+
+            ResultSet getNewNick = state.executeQuery("SELECT nick FROM auth " +
+                    "WHERE login = '" + login + "'" + " AND password = '" + pass + "'");
             while (getNewNick.next()){
             nickName = getNewNick.getString("nick");}
     }catch (SQLException ex){
             ex.printStackTrace();}
             return nickName;
+    }
+// метод для занесения записей пользователей чата в таблицу journal бд.
+    void recordTextFromClient(String strFromClient, String nick){
+        int nick_id = 0; //нужно получить id данного клиента по его нику(ник не повторяется в бд)
+        String query = "SELECT id FROM auth WHERE nick ='" + nick + "'";
+
+        try{
+            state = connection.createStatement();
+            ResultSet getId = state.executeQuery(query);
+            while (getId.next()){
+                nick_id = getId.getInt("nick");}
+            state = connection.createStatement();
+            state.executeUpdate("INSERT INTO journal (text, id_author)  " +
+                    "VALUES ('" + strFromClient + "', '" + nick_id + "')");
+
+        }catch (SQLException ex){
+            System.out.println("Не удалось записать сообщение пользователя в бд");
+        }
+
+
     }
 }

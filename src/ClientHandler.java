@@ -40,7 +40,7 @@ public class ClientHandler {
     }
 
     public void authentication() throws IOException {
-        while ((System.currentTimeMillis()-timeStart)/1000 <= 260) {
+        while ((System.currentTimeMillis()-timeStart)/1000 <= 180) {
             try {
                 String str = in.readUTF(); //ожидаем текст от клиента
                 System.out.println(str);
@@ -87,27 +87,28 @@ public class ClientHandler {
         if(flag){sendMsg("Авторизация прошла успешно!");}
         else{sendMsg("/time");}
     }
-    //метод чтения из потока от клиента с которым связан
+    //метод чтения сообщений от клиента с которым связан, после авторизации клиента
     public void readMessages() throws IOException {
         while (flag) {
-            String strFromClient = in.readUTF();
+            String strFromClient = in.readUTF();//strFromClient содержит текст от клиента
             System.out.println("от " + name + ": " + strFromClient);
-            if (strFromClient.equals("/end")) {
+            if (strFromClient.equals("/end")) { //если текст == /end
                 sendMsg("/end");
                 socket.close();
                 return;
             }
-            if (strFromClient.startsWith("/update ")){
+            if (strFromClient.startsWith("/update ")){ // если текст начинается с /update
                 String[] parts = strFromClient.split("\\s");
                 name = myServer.getConnectBase().getNewNick(parts[1], parts[2], parts[3]);
             }
-            if (strFromClient.startsWith("/w")){
+            if (strFromClient.startsWith("/w")){ // если текст начинается с /w
                 String[] words = strFromClient.split("\\s");
                 String forName = words[1];
                 String textForClient = strFromClient.substring(4 + forName.length());
                 myServer.sendOnly(textForClient, forName, name);
                 sendMsg("Для " + forName + ": " + textForClient);//дублируем самому отправителю
-            } else
+            } else  // в противном случае:
+                myServer.getConnectBase().recordTextFromClient(strFromClient, name); // отправляем в бд, (name - ник соответствующего клиента)
                 myServer.broadcastMsg(name + ": " + strFromClient);//отправка сообщения всем клиентам через сервер
         }
     }

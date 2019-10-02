@@ -1,16 +1,13 @@
 import java.sql.*;
 
 public class ConnectBase {
-    private Connection connection;
-    private ResultSet rs, rss;
+    private Connection connection = null;
     private Statement state;
     private final String DB_URL = "jdbc:sqlite:C:\\Users\\Admin\\Documents\\Elmira Studying\\Github_2019\\JavaCoreProfessional\\db\\BaseAuthService.db";
     private final String DB_Driver = "org.sqlite.JDBC";
     //-----------------------------------------------------------------------------------------------------------------
-
-
-    //Метод для получения соединения с БД.
-    public Connection getConnection_DB() {
+    //объект ConnectBase создается 1 раз на сервере для получения соединения с бд - BaseAuthService.db(находится в папке db)
+    ConnectBase() {
         try {
             Class.forName(DB_Driver);
             connection = DriverManager.getConnection(DB_URL);
@@ -20,10 +17,10 @@ public class ConnectBase {
         } catch (Exception e) {
             System.out.println("Что-то не так, надо разобраться! " + e.getMessage());
         }
-        return connection;
+
     }
 
-//=======================================
+//этот метод использовала 1 раз для создания таблицы auth в бд BaseAuthService. Его вызов был в классе Server
     public void createTable(){
         try{
             String query = String.format("CREATE TABLE auth (id integer primary key autoincrement, login varchar not null,  password varchar not null, nick varchar not null)");
@@ -35,7 +32,7 @@ public class ConnectBase {
             state.executeUpdate(query2);
         }catch (SQLException ex){}
     }
-//==========================
+// метод для закрытия connection
     void close() {
         try {
             connection.close();
@@ -56,6 +53,7 @@ public class ConnectBase {
         } catch (SQLException e) {
             System.out.println(e);
         }
+
         return nick;
     }
 // ========== метод добавляет в базу нового пользователя

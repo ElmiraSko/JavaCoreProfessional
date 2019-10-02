@@ -6,23 +6,23 @@ import java.util.List;
 
 public class Server {
     private final int PORT = 8189;
-    private ConnectBase connectBase;  // ссылка на объект Conect
-    private List<ClientHandler> clients; //clients- ссылка на список(ArrayList) клиентов, пока  null
-
+    private ConnectBase connectBase;  // ссылка на объект ConnectBase
+    private List<ClientHandler> clients; //clients- ссылка на список(ArrayList) будущих клиентов
+// объект ConnectBase позволит получить соединение с бд, содержит "методы-запросы"
     public ConnectBase getConnectBase() {
         return connectBase;
-    }
+    } // возвращает ссылку на объект, у которого есть соединение с бд
 
     public Server() {
         try (ServerSocket server = new ServerSocket(PORT)) {
-            connectBase = new ConnectBase();
-            connectBase.getConnection_DB();  // получили соединение с базой
+            connectBase = new ConnectBase(); // получили соединение с базой
             clients = new ArrayList<>(); //создается список clients, для хранения объектов типа ClientHandler
+// заходим в цикл ожидания клиентов
             while (true) {
                 System.out.println("Сервер ожидает подключения");
-                Socket socket = server.accept();
+                Socket socket = server.accept(); // подключенного клиента отдаем ClientHandler-у
                 System.out.println("Клиент подключился");
-                new ClientHandler(this, socket); //создали держателя
+                new ClientHandler(this, socket); //создали держателя ClientHandler
             }
         } catch (IOException e) {
             System.out.println("Ошибка в работе сервера");

@@ -144,7 +144,7 @@ public String registration(String login, String pass, String nick){
             }catch (SQLException e){}
         }
     }
-//метод для выгрузки последних 15 записей из бд  SELECT * FROM (SELECT id, text FROM journal ORDER BY id DESC LIMIT 10) ORDER BY id ASC
+//метод для выгрузки последних 15 записей из бд
     String readTextClients(){
         List<String> list = new ArrayList<>(30);
         StringBuilder texts = new StringBuilder(" = ");
@@ -155,11 +155,6 @@ public String registration(String login, String pass, String nick){
             ResultSet getText = state.executeQuery(query);
             while (getText.next()){
                 list.add(getText.getInt("id") + " :" + getText.getString("text"));
-
-//                text.append(getText.getInt("id"));
-//                text.append(": ");
-//                text.append(getText.getString("text"));
-//                text.append("\n");
             }
             Collections.sort(list);
             for (String st : list){texts.append(st);texts.append("\n");}

@@ -309,6 +309,12 @@ public class Client extends JFrame {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 if (flag_exit) {
+                    try { //что бы избавиться от эксепшна, пришлось добавить out.writeUTF("/end");
+                        out.writeUTF("/end");
+                        out.flush();
+                    } catch (IOException exc) {
+                        exc.printStackTrace();
+                    }
                     System.exit(0);
                 } else {new Thread(new Runnable() {
                     @Override

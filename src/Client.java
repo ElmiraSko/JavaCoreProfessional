@@ -23,11 +23,11 @@ public class Client extends JFrame {
 
     public Client() {
         try {
-            openConnection();
+            openConnection(); //коннектимся
         } catch (IOException e) {
             e.printStackTrace();
         }
-        prepareGUI();
+        prepareGUI(); //графичекий интерфейс
     }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -50,18 +50,18 @@ public class Client extends JFrame {
                         while (true) {
                             String strFromServer;
                             if (!(strFromServer = in.readUTF()).trim().isEmpty()) {
-                                System.out.println(strFromServer + " - проверка");
+                                System.out.println(strFromServer + " - проверка при подключении");
                                 if (!strFromServer.startsWith("/time")) {
                                     if (strFromServer.startsWith("/authok")) { // если авторизовались
                                         myNick = strFromServer.split("\\s")[1];//клиент получил свой ник
                                         if (myNick != null) {
-                                            System.out.println("Ник получен");
                                             msgInputField.setEditable(true);
                                             msgInputField.setBackground(Color.YELLOW);
                                             conect = true;
                                             flag_exit = true;
                                             btnAuth.setEnabled(false);
                                             btnRegistration.setText("Сменить ник");
+                                            chatArea.append(strFromServer);
                                         }
                                         break;
                                     }
@@ -88,7 +88,8 @@ public class Client extends JFrame {
                                     flag_exit = true; //использую при закрытии окна
                                     break;
                                 }
-                                chatArea.append(strFromServer + "\n");
+                                chatArea.append(strFromServer);
+                                chatArea.append("\n");
                             }
                         }
                     } catch (EOFException ex){System.out.println("Ошибка при чтении");}

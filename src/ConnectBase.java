@@ -1,4 +1,8 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class ConnectBase {
     private Connection connection = null;
@@ -108,7 +112,6 @@ public String registration(String login, String pass, String nick){
         try {
             state = connection.createStatement();
             state.executeUpdate(query);
-
             ResultSet getNewNick = state.executeQuery("SELECT nick FROM auth " +
                     "WHERE login = '" + login + "'" + " AND password = '" + pass + "'");
             while (getNewNick.next()){
@@ -117,24 +120,53 @@ public String registration(String login, String pass, String nick){
             ex.printStackTrace();}
             return nickName;
     }
+
+
 // метод для занесения записей пользователей чата в таблицу journal бд.
     void recordTextFromClient(String strFromClient, String nick){
-        int nick_id = 0; //нужно получить id данного клиента по его нику(ник не повторяется в бд)
+        int nick_id = 0; //нужно получить id клиента по его нику(ник не повторяется в бд)
         String query = "SELECT id FROM auth WHERE nick ='" + nick + "'";
-
         try{
             state = connection.createStatement();
             ResultSet getId = state.executeQuery(query);
             while (getId.next()){
-                nick_id = getId.getInt("nick");}
-            state = connection.createStatement();
+                nick_id = getId.getInt("id");
+            }
             state.executeUpdate("INSERT INTO journal (text, id_author)  " +
                     "VALUES ('" + strFromClient + "', '" + nick_id + "')");
-
+            System.out.println("Запись");
         }catch (SQLException ex){
             System.out.println("Не удалось записать сообщение пользователя в бд");
         }
+        finally {
+            try {
+                state.close();
+            }catch (SQLException e){}
+        }
+    }
+//метод для выгрузки последних 15 записей из бд  SELECT * FROM (SELECT id, text FROM journal ORDER BY id DESC LIMIT 10) ORDER BY id ASC
+    String readTextClients(){
+        List<String> list = new ArrayList<>(30);
+        StringBuilder texts = new StringBuilder(" = ");
 
+        String query = "SELECT id, text FROM journal ORDER BY id DESC LIMIT 15";
+        try{
+            state = connection.createStatement();
+            ResultSet getText = state.executeQuery(query);
+            while (getText.next()){
+                list.add(getText.getInt("id") + " :" + getText.getString("text"));
 
+//                text.append(getText.getInt("id"));
+//                text.append(": ");
+//                text.append(getText.getString("text"));
+//                text.append("\n");
+            }
+            Collections.sort(list);
+            for (String st : list){texts.append(st);texts.append("\n");}
+            System.out.println(texts.toString());
+        }catch (SQLException ex){
+            System.out.println("Не удалось записать сообщение пользователя в бд");
+        }
+        return texts.toString();
     }
 }

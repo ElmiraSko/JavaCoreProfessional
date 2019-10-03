@@ -26,7 +26,7 @@ public class ClientHandler {
 
             new Thread(() -> {
                 try {
-                    authentication();
+                    authentication(); //авторизация
                     readMessages();  // чтение сообщений от клиента
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -39,7 +39,7 @@ public class ClientHandler {
         }
     }
 
-    public void authentication() throws IOException {
+    void authentication() throws IOException { //авторизация
         while ((System.currentTimeMillis()-timeStart)/1000 <= 180) {
             try {
                 String str = in.readUTF(); //ожидаем текст от клиента
@@ -49,10 +49,11 @@ public class ClientHandler {
                     String nick = myServer.getConnectBase().getNickByLoginPass(parts[1], parts[2]);
                     if (nick != null) { // получили ник из БД и он не пустой
                         if (!myServer.isNickBusy(nick)) { // если сейчас он не используется
-                            sendMsg("/authok " + nick);//отправили клиенту сообщение, что он авторизован
+                            sendMsg("/authok " + nick);//направили клиенту сообщение, что он авторизован
                             name = nick;
                             flag=true;
-                            myServer.broadcastMsg(name + " зашел в чат");
+                            sendMsg(myServer.getConnectBase().readTextClients()); //направили клиенту содержимое переписки
+                            myServer.broadcastMsg(name + " зашел в чат");//отправили всем клиентам
                             myServer.subscribe(this);
                             return; // вышли из цикла авторизации
                         } else {
@@ -85,13 +86,14 @@ public class ClientHandler {
             }
         }
         if(flag){sendMsg("Авторизация прошла успешно!");}
-        else{sendMsg("/time");}
+        else{//sendMsg("/time");
+        }
     }
     //метод чтения сообщений от клиента с которым связан, после авторизации клиента
-    public void readMessages() throws IOException {
+    void readMessages() throws IOException {
         while (flag) {
-            String strFromClient = in.readUTF();//strFromClient содержит текст от клиента
-            System.out.println("от " + name + ": " + strFromClient);
+            String strFromClient = in.readUTF();  //strFromClient содержит текст от клиента
+          //  System.out.println("от " + name + ": " + strFromClient);
             if (strFromClient.equals("/end")) { //если текст == /end
                 sendMsg("/end");
                 socket.close();
@@ -105,15 +107,18 @@ public class ClientHandler {
                 String[] words = strFromClient.split("\\s");
                 String forName = words[1];
                 String textForClient = strFromClient.substring(4 + forName.length());
-                myServer.sendOnly(textForClient, forName, name);
+                myServer.sendOnly(textForClient, forName, name);   //персональное сообщение
                 sendMsg("Для " + forName + ": " + textForClient);//дублируем самому отправителю
-            } else  // в противном случае:
-                myServer.getConnectBase().recordTextFromClient(strFromClient, name); // отправляем в бд, (name - ник соответствующего клиента)
-                myServer.broadcastMsg(name + ": " + strFromClient);//отправка сообщения всем клиентам через сервер
+            } else {  // в противном случае:
+                // отправляем в бд, (сообщения и ник соответствующего клиента)
+                myServer.getConnectBase().recordTextFromClient(strFromClient, name);
+                myServer.broadcastMsg(name + ": " + strFromClient);
+            }
+                //отправка сообщения всем клиентам через сервер
         }
     }
 
-    public void sendMsg(String msg) { //отправляет сообщение клиенту с которым связан
+    void sendMsg(String msg) { //отправляет сообщение клиенту с которым связан
         try {
             out.writeUTF(msg);
             out.flush();

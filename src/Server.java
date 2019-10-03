@@ -16,7 +16,6 @@ public class Server {
     public Server() {
         try (ServerSocket server = new ServerSocket(PORT)) {
             connectBase = new ConnectBase(); // получили соединение с базой
-            //connectBase.createTable2();
             clients = new ArrayList<>(); //создается список clients, для хранения объектов типа ClientHandler
 // заходим в цикл ожидания клиентов
             while (true) {

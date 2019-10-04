@@ -1,0 +1,10 @@
+nick1: 55
+nick1: 66
+nick1: 77
+nick1: 88
+nick1: 99
+nick1: 10
+nick1: 10
+nick1: 11
+nick1: 11
+nick1: 12

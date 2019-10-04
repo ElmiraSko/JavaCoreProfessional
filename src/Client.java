@@ -13,8 +13,12 @@ public class Client extends JFrame {
 
     private boolean flag_exit = false;
     private boolean conect = false;
-    private JPanel panelButton;
     private String myNick;
+    private StringBuilder fileName = new StringBuilder("C:\\Users\\Admin\\Documents\\Elmira Studying\\Github_2019\\JavaCoreProfessional\\files\\history_");
+    private File file;
+    private String[] stringsArr = new String[10];
+
+    private JPanel panelButton;
     private JButton btnEnter, btnAuth, btnRegistration, btnReg ;
     JLabel label_login, label_pass, label_nick;
     private JTextField msgInputField, login, password, nick;
@@ -62,6 +66,36 @@ public class Client extends JFrame {
                                             flag_exit = true;
                                             btnAuth.setEnabled(false);
                                             btnRegistration.setText("Сменить ник");
+                                            fileName.append(myNick);
+                                            fileName.append(".txt");
+                                            file = new File(fileName.toString());
+                                            if(file.createNewFile()){
+                                                System.out.println("Файл создан");
+                                            }else System.out.println("Файл уже существует");
+// Создала массив stringsArr пока для 10 элементов. В блоке авторизации в этот массив считываем построчно из файла.
+// Затем в этот массив будут добавляться новые записи во время общения в чате. В конце сессии содержимое массива будет записываться опять в файл.
+// Таким образом в файле хранится последние 10 записей. Есть проблема: одна запись почему-то дублируется.
+                                            try (BufferedReader reader = new BufferedReader(new FileReader(file))){
+                                                String strFor;
+                                                while ((strFor = reader.readLine()) != null) { //считали строку из файла, если есть
+                                                    for (int i = 0; i < stringsArr.length; i++) { // записываем в массив...
+                                                        if (stringsArr[i] == null) {
+                                                            stringsArr[i] = strFor;
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (stringsArr[stringsArr.length-1]!=null){ // не было времени для оптимизации
+                                                        for (int i = 0; i < stringsArr.length-1; i++) {
+                                                            stringsArr[i] = stringsArr[i+1];
+                                                        }
+                                                        stringsArr[stringsArr.length-1] = strFor;
+                                                    }
+                                                chatArea.append(strFor); // выводим эту строку в чат
+                                                chatArea.append("\n");
+                                                }
+                                            }catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
                                         }
                                         break;
                                     }
@@ -80,7 +114,8 @@ public class Client extends JFrame {
                                 }
                             }
                         }
-                        while (conect) {
+                        while (conect) { // если авторизовались, начинаем общение в чате
+
                             String strFromServer;
                             if (!(strFromServer = in.readUTF()).trim().isEmpty()) {
                                 if (strFromServer.equalsIgnoreCase("/end")) {
@@ -88,9 +123,34 @@ public class Client extends JFrame {
                                     flag_exit = true; //использую при закрытии окна
                                     break;
                                 }
-                                chatArea.append(strFromServer + "\n");
+                                chatArea.append(strFromServer);
+                                chatArea.append("\n");
+// Используем массив stringsArr  пока для 10 элементов.
+                                for (int i = 0; i < stringsArr.length; i++) {
+                                        if (stringsArr[i] == null) {
+                                            stringsArr[i] = strFromServer;
+                                            break;
+                                        }
+                                    }
+                                if (stringsArr[stringsArr.length-1]!=null){
+                                    for (int i = 0; i < stringsArr.length-1; i++) {
+                                        stringsArr[i] = stringsArr[i+1];
+                                    }
+                                    stringsArr[stringsArr.length-1] = strFromServer;
+                                }
+                            }
+                            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                                for (String s : stringsArr){
+                                    if (s != null){
+                                        writer.write( s + "\n");
+                                        System.out.println(s);
+                                    }
+                                }
+                            }catch (IOException ex){
+                                ex.printStackTrace();
                             }
                         }
+
                     } catch (EOFException ex){System.out.println("Ошибка при чтении");}
                     catch (Exception e) {
                         System.out.println("Ошибка при закрытии окна клиента");
@@ -308,6 +368,12 @@ public class Client extends JFrame {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 if (flag_exit) {
+                    try {
+                        out.writeUTF("/end");
+                        out.flush();
+                    } catch (IOException exc) {
+                        exc.printStackTrace();
+                    }
                     System.exit(0);
                 } else {new Thread(new Runnable() {
                     @Override

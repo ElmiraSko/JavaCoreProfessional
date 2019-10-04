@@ -115,7 +115,6 @@ public class Client extends JFrame {
                             }
                         }
                         while (conect) { // если авторизовались, начинаем общение в чате
-
                             String strFromServer;
                             if (!(strFromServer = in.readUTF()).trim().isEmpty()) {
                                 if (strFromServer.equalsIgnoreCase("/end")) {

@@ -42,7 +42,9 @@ public class Threads_1 {
                     try {
                         Thread.sleep(1000);
                         lock.notifyAll();
-                        lock.wait();
+                        if (i < 4){ // данное условие помогает завершить программу, чтоб 3-й поток не заходил в режим ожидания
+                            lock.wait();
+                        }
                     }catch (InterruptedException ex){
                         ex.printStackTrace();
                     }

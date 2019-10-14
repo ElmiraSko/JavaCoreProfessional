@@ -51,7 +51,7 @@ public class Client extends JFrame {
                 @Override
                 public void run() {
                     try {
-                        while (true) {
+                        while (true) {       // цикл авторизации
                             String strFromServer;
                             if (!(strFromServer = in.readUTF()).trim().isEmpty()) {
                                 System.out.println(strFromServer + " - проверка");
@@ -78,18 +78,6 @@ public class Client extends JFrame {
                                             try (BufferedReader reader = new BufferedReader(new FileReader(file))){
                                                 String strFor;
                                                 while ((strFor = reader.readLine()) != null) { //считали строку из файла, если есть
-                                                    for (int i = 0; i < stringsArr.length; i++) { // записываем в массив...
-                                                        if (stringsArr[i] == null) {
-                                                            stringsArr[i] = strFor;
-                                                            break;
-                                                        }
-                                                    }
-                                                    if (stringsArr[stringsArr.length-1]!=null){ // не было времени для оптимизации
-                                                        for (int i = 0; i < stringsArr.length-1; i++) {
-                                                            stringsArr[i] = stringsArr[i+1];
-                                                        }
-                                                        stringsArr[stringsArr.length-1] = strFor;
-                                                    }
                                                 chatArea.append(strFor); // выводим эту строку в чат
                                                 chatArea.append("\n");
                                                 }
@@ -125,24 +113,25 @@ public class Client extends JFrame {
                                 chatArea.append(strFromServer);
                                 chatArea.append("\n");
 // Используем массив stringsArr  пока для 10 элементов.
-                                for (int i = 0; i < stringsArr.length; i++) {
+                                if (stringsArr[stringsArr.length-1]!= null){ // если последний элемент в массиве не null
+                                    for (int i = 0; i < stringsArr.length-1; i++) { // передвигаем элементы массива на одну позицию
+                                        stringsArr[i] = stringsArr[i+1];
+                                    }
+                                    stringsArr[stringsArr.length-1] = strFromServer;
+                                }else{
+                                    for (int i = 0; i < stringsArr.length; i++) {
                                         if (stringsArr[i] == null) {
                                             stringsArr[i] = strFromServer;
                                             break;
                                         }
                                     }
-                                if (stringsArr[stringsArr.length-1]!=null){
-                                    for (int i = 0; i < stringsArr.length-1; i++) {
-                                        stringsArr[i] = stringsArr[i+1];
-                                    }
-                                    stringsArr[stringsArr.length-1] = strFromServer;
                                 }
                             }
                             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                                 for (String s : stringsArr){
                                     if (s != null){
                                         writer.write( s + "\n");
-                                        System.out.println(s);
+                                        System.out.println(s);    // проверила, что записалось в файл
                                     }
                                 }
                             }catch (IOException ex){

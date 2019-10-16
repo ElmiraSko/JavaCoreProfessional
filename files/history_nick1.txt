@@ -1,10 +1,10 @@
-nick1: 11
-nick1: 12
-nick1: 12
-nick1: Привет! (1)
-nick1: Это второе предложение
-nick1: Это второе предложение
-nick1: dadada
-nick1: error
-nick1: error
-nick1: error2
+nick1: 1111
+nick1: 333
+nick1: 5555
+nick1: 999
+nick1: 888
+nick1: jjjjj
+nick1: hhhh
+nick1: nnnn
+nick1: mmmmmm
+nick1: привет1

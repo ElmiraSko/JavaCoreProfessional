@@ -59,7 +59,7 @@ public class Client extends JFrame {
                                     if (strFromServer.startsWith("/authok")) { // если авторизовались
                                         myNick = strFromServer.split("\\s")[1];//клиент получил свой ник
                                         if (myNick != null) {
-                                            System.out.println("Ник получен");
+//                                            System.out.println("Ник получен");
                                             msgInputField.setEditable(true);
                                             msgInputField.setBackground(Color.YELLOW);
                                             conect = true;
@@ -72,14 +72,17 @@ public class Client extends JFrame {
                                             if(file.createNewFile()){
                                                 System.out.println("Файл создан");
                                             }else System.out.println("Файл уже существует");
+
 // Создала массив stringsArr пока для 10 элементов. В блоке авторизации в этот массив считываем построчно из файла.
 // Затем в этот массив будут добавляться новые записи во время общения в чате. В конце сессии содержимое массива будет записываться опять в файл.
-// Таким образом в файле хранится последние 10 записей. Есть проблема: одна запись почему-то дублируется.
+// Таким образом в файле хранится последние 10 записей.
                                             try (BufferedReader reader = new BufferedReader(new FileReader(file))){
-                                                String strFor;
+                                                String strFor; int i = 0;
                                                 while ((strFor = reader.readLine()) != null) { //считали строку из файла, если есть
-                                                chatArea.append(strFor); // выводим эту строку в чат
-                                                chatArea.append("\n");
+                                                    stringsArr[i] = strFor; // снова записываем в массив то, что было в файле ранее
+                                                    chatArea.append(strFor); // выводим эту строку в чат
+                                                    chatArea.append("\n");
+                                                    i++;
                                                 }
                                             }catch (IOException e) {
                                                 e.printStackTrace();
@@ -103,10 +106,10 @@ public class Client extends JFrame {
                             }
                         }
                         while (conect) { // если авторизовались, начинаем общение в чате
-                            String strFromServer;
+                            String strFromServer;  // переменная для хранения разовой порции сообщения
                             if (!(strFromServer = in.readUTF()).trim().isEmpty()) {
                                 if (strFromServer.equalsIgnoreCase("/end")) {
-                                    System.out.println(strFromServer);
+                                    System.out.println(strFromServer); // вывод на консоль для проверки
                                     flag_exit = true; //использую при закрытии окна
                                     break;
                                 }
@@ -118,9 +121,9 @@ public class Client extends JFrame {
                                         stringsArr[i] = stringsArr[i+1];
                                     }
                                     stringsArr[stringsArr.length-1] = strFromServer;
-                                }else{
+                                }else{ // если массив не заполнен, то...
                                     for (int i = 0; i < stringsArr.length; i++) {
-                                        if (stringsArr[i] == null) {
+                                        if (stringsArr[i] == null) {   // дописываем в массив
                                             stringsArr[i] = strFromServer;
                                             break;
                                         }
@@ -128,9 +131,10 @@ public class Client extends JFrame {
                                 }
                             }
                             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                                for (String s : stringsArr){
+                                for (String s : stringsArr){ // записываем в файл все ненулевые элементы массива
                                     if (s != null){
                                         writer.write( s + "\n");
+                                        writer.flush();
                                         System.out.println(s);    // проверила, что записалось в файл
                                     }
                                 }
@@ -148,7 +152,7 @@ public class Client extends JFrame {
             });
             t.setDaemon(true);
             t.start();
-        }catch (Exception ee){System.out.println("Где ошибка?");}
+        }catch (Exception ee){System.out.println("Где сервер?");}
     }
     //=====================================
     public void closeConnection() {

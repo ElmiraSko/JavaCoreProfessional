@@ -92,7 +92,7 @@ public class ClientHandler {
         while (flag) {
             String strFromClient = in.readUTF();
             System.out.println("от " + name + ": " + strFromClient);
-            if (strFromClient.equals("/end")) {
+            if (strFromClient.equals("/end")){
                 sendMsg("/end");
                 socket.close();
                 return;

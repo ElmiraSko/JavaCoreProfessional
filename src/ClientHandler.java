@@ -39,12 +39,12 @@ public class ClientHandler {
         }
     }
 
-    public void authentication() throws IOException {
+    public void authentication() throws IOException {    // авторизация
         while ((System.currentTimeMillis()-timeStart)/1000 <= 260) {
             try {
                 String str = in.readUTF(); //ожидаем текст от клиента
                 System.out.println(str);
-                if (str.startsWith("/auth")) { // если текст начинается с "/auth", т.е. авторизуемся, то
+                if (str.startsWith("/auth")) { // если текст начинается с "/auth", т.е. авторизуемся, тогда...
                     String[] parts = str.split("\\s");
                     String nick = myServer.getConnectBase().getNickByLoginPass(parts[1], parts[2]);
                     if (nick != null) { // получили ник из БД и он не пустой
@@ -52,8 +52,8 @@ public class ClientHandler {
                             sendMsg("/authok " + nick);//отправили клиенту сообщение, что он авторизован
                             name = nick;
                             flag=true;
-                            myServer.broadcastMsg(name + " зашел в чат");
-                            myServer.subscribe(this);
+                            myServer.broadcastMsg("/side" + name + " зашел в чат"); // отправка через сервер
+                            myServer.subscribe(this);   //
                             return; // вышли из цикла авторизации
                         } else {
                             sendMsg("Учетная запись уже используется");
@@ -68,10 +68,10 @@ public class ClientHandler {
                     String[] parts = str.split("\\s");
                     String nick = myServer.getConnectBase().registration(parts[1], parts[2], parts[3]);
                     if (nick!=null){
-                    sendMsg("/authok " + nick);//отправили клиенту, что он авторизовался
+                    sendMsg("/authok " + nick);//отправили клиенту, что он авторизовался (служебное сообщение)
                     name = nick;
                     flag=true;
-                    myServer.broadcastMsg(name + " зашел в чат");
+                    myServer.broadcastMsg("/side" + name + " зашел в чат");   // отправка через сервер
                     myServer.subscribe(this);
                     return;
                     }else{
@@ -92,16 +92,16 @@ public class ClientHandler {
         while (flag) {
             String strFromClient = in.readUTF();
             System.out.println("от " + name + ": " + strFromClient);
-            if (strFromClient.equals("/end")){
+            if (strFromClient.equals("/end")){   // если хотим выйти из чата
                 sendMsg("/end");
                 socket.close();
                 return;
             }
-            if (strFromClient.startsWith("/update ")){
+            if (strFromClient.startsWith("/update ")){  // если хотим поменять ник
                 String[] parts = strFromClient.split("\\s");
                 name = myServer.getConnectBase().getNewNick(parts[1], parts[2], parts[3]);
             }
-            if (strFromClient.startsWith("/w")){
+            if (strFromClient.startsWith("/w")){    // персональное сообщение
                 String[] words = strFromClient.split("\\s");
                 String forName = words[1];
                 String textForClient = strFromClient.substring(4 + forName.length());
@@ -112,7 +112,7 @@ public class ClientHandler {
         }
     }
 
-    public void sendMsg(String msg) { //отправляет сообщение клиенту с которым связан
+    public void sendMsg(String msg) { //метод отправляет сообщение клиенту с которым связан
         try {
             out.writeUTF(msg);
             out.flush();
@@ -123,7 +123,7 @@ public class ClientHandler {
 
     public void closeConnection() { // закрытие соединения, удаляет ClientHandler- объект из списка
         myServer.unsubscribe(this);
-        myServer.broadcastMsg(name + " вышел из чата"); //всем клиентам отправка сообщения
+        myServer.broadcastMsg("/side" + name + " вышел из чата"); //всем клиентам отправка служебного сообщения
         try {
             in.close();
         } catch (IOException e) {

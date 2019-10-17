@@ -1,6 +1,3 @@
-nick1: 1111
-nick1: 333
-nick1: 5555
 nick1: 999
 nick1: 888
 nick1: jjjjj
@@ -8,3 +5,6 @@ nick1: hhhh
 nick1: nnnn
 nick1: mmmmmm
 nick1: привет1
+nick1: gggggg7777777
+nick4: Привет всем! 18:54 это ник4
+nick2_new: ffffffffffffffffffffffffff

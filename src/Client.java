@@ -59,17 +59,17 @@ public class Client extends JFrame {
                                     if (strFromServer.startsWith("/authok")) { // если авторизовались
                                         myNick = strFromServer.split("\\s")[1];//клиент получил свой ник
                                         if (myNick != null) {
-//                                            System.out.println("Ник получен");
+                                      //   System.out.println("Ник получен");
                                             msgInputField.setEditable(true);
                                             msgInputField.setBackground(Color.YELLOW);
-                                            conect = true;
+                                            conect = true; // флаг для перехода к следующему этапу
                                             flag_exit = true;
                                             btnAuth.setEnabled(false);
                                             btnRegistration.setText("Сменить ник");
                                             fileName.append(myNick);
                                             fileName.append(".txt");
                                             file = new File(fileName.toString());
-                                            if(file.createNewFile()){
+                                            if(file.createNewFile()){  // создание файла
                                                 System.out.println("Файл создан");
                                             }else System.out.println("Файл уже существует");
 
@@ -79,8 +79,9 @@ public class Client extends JFrame {
                                             try (BufferedReader reader = new BufferedReader(new FileReader(file))){
                                                 String strFor; int i = 0;
                                                 while ((strFor = reader.readLine()) != null) { //считали строку из файла, если есть
-                                                    stringsArr[i] = strFor; // снова записываем в массив то, что было в файле ранее
-                                                    chatArea.append(strFor); // выводим эту строку в чат
+                                                    stringsArr[i] = strFor; // снова записываем в массив то, что было в файле ранее,
+                                                    // т.к. при создании клиента массив пуст
+                                                    chatArea.append(strFor); // выводим строки в чат
                                                     chatArea.append("\n");
                                                     i++;
                                                 }
@@ -101,7 +102,7 @@ public class Client extends JFrame {
                                     }
                                     JOptionPane.showMessageDialog(wind, "Время авторизации истекло.");
                                     closeConnection();
-                                    break;
+                                    break; // если не успели авторизоваться, закрываем соединение и выходим из цикла авторизации
                                 }
                             }
                         }
@@ -115,17 +116,22 @@ public class Client extends JFrame {
                                 }
                                 chatArea.append(strFromServer);
                                 chatArea.append("\n");
-// Используем массив stringsArr  пока для 10 элементов.
-                                if (stringsArr[stringsArr.length-1]!= null){ // если последний элемент в массиве не null
-                                    for (int i = 0; i < stringsArr.length-1; i++) { // передвигаем элементы массива на одну позицию
-                                        stringsArr[i] = stringsArr[i+1];
-                                    }
-                                    stringsArr[stringsArr.length-1] = strFromServer;
-                                }else{ // если массив не заполнен, то...
-                                    for (int i = 0; i < stringsArr.length; i++) {
-                                        if (stringsArr[i] == null) {   // дописываем в массив
-                                            stringsArr[i] = strFromServer;
-                                            break;
+
+                                if (strFromServer.startsWith("/side")) {  // если получили служебную информацию
+                                    System.out.println("Служебная информация");
+                                }else{
+                                    // Используем массив stringsArr  пока для 10 элементов.
+                                    if (stringsArr[stringsArr.length-1]!= null){ // если последний элемент в массиве не null
+                                        for (int i = 0; i < stringsArr.length-1; i++) { // передвигаем элементы массива на одну позицию
+                                            stringsArr[i] = stringsArr[i+1];
+                                        }
+                                        stringsArr[stringsArr.length-1] = strFromServer;
+                                    }else{ // если массив не заполнен, то...
+                                        for (int i = 0; i < stringsArr.length; i++) {
+                                            if (stringsArr[i] == null) {   // дописываем в массив
+                                                stringsArr[i] = strFromServer;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
